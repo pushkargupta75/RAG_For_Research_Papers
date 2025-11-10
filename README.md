@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
 
-**AI-powered scientific paper analysis with RAG - 100% free using Groq & HuggingFace**
+**AI-powered scientific paper analysis with RAG - using Groq & HuggingFace**
 
 Analyze research papers with natural language queries. Built with Groq's Llama 3.3 (ultra-fast LLM) and HuggingFace embeddings (local, unlimited).
 
