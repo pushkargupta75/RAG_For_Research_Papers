@@ -170,6 +170,31 @@ class RAGRetrieval:
         Returns:
             Answer dictionary with sources
         """
+        # Pre-fetch scored retrieval diagnostics
+        scored_results = self.vectorstore.similarity_search_with_score(
+            question,
+            k=k,
+            filter={"paper_id": paper_id}
+        )
+
+        retrieval_diagnostics = []
+        for doc, distance in scored_results:
+            relevance = 1 / (1 + float(distance))
+            retrieval_diagnostics.append({
+                "paper_id": doc.metadata.get("paper_id", "Unknown"),
+                "paper_title": doc.metadata.get("paper_title", "Unknown"),
+                "section": doc.metadata.get("section", "Unknown"),
+                "chunk_index": doc.metadata.get("chunk_index", "Unknown"),
+                "distance": float(distance),
+                "relevance_score": float(relevance),
+                "preview": doc.page_content[:220].replace("\n", " ")
+            })
+
+        avg_relevance = (
+            sum(item["relevance_score"] for item in retrieval_diagnostics) / len(retrieval_diagnostics)
+            if retrieval_diagnostics else 0.0
+        )
+
         # Create retriever with paper filter
         retriever = self.vectorstore.as_retriever(
             search_kwargs={
@@ -208,7 +233,13 @@ Answer: Let me provide a detailed answer based on the paper's content:"""
         
         return {
             "answer": result["result"],
-            "source_documents": result["source_documents"]
+            "source_documents": result["source_documents"],
+            "retrieval_diagnostics": retrieval_diagnostics,
+            "retrieval_summary": {
+                "retrieval_mode": "vector_similarity",
+                "k": k,
+                "avg_relevance": avg_relevance
+            }
         }
     
     def query_multi_paper(
@@ -226,6 +257,30 @@ Answer: Let me provide a detailed answer based on the paper's content:"""
         Returns:
             Synthesized answer with sources from multiple papers
         """
+        # Pre-fetch scored retrieval diagnostics
+        scored_results = self.vectorstore.similarity_search_with_score(
+            question,
+            k=k
+        )
+
+        retrieval_diagnostics = []
+        for doc, distance in scored_results:
+            relevance = 1 / (1 + float(distance))
+            retrieval_diagnostics.append({
+                "paper_id": doc.metadata.get("paper_id", "Unknown"),
+                "paper_title": doc.metadata.get("paper_title", "Unknown"),
+                "section": doc.metadata.get("section", "Unknown"),
+                "chunk_index": doc.metadata.get("chunk_index", "Unknown"),
+                "distance": float(distance),
+                "relevance_score": float(relevance),
+                "preview": doc.page_content[:220].replace("\n", " ")
+            })
+
+        avg_relevance = (
+            sum(item["relevance_score"] for item in retrieval_diagnostics) / len(retrieval_diagnostics)
+            if retrieval_diagnostics else 0.0
+        )
+
         # Create retriever
         retriever = self.vectorstore.as_retriever(
             search_kwargs={"k": k}
@@ -271,7 +326,13 @@ Synthesized Answer (mention which papers support each point):"""
         return {
             "answer": result["result"],
             "source_documents": result["source_documents"],
-            "papers_cited": papers_cited
+            "papers_cited": papers_cited,
+            "retrieval_diagnostics": retrieval_diagnostics,
+            "retrieval_summary": {
+                "retrieval_mode": "vector_similarity",
+                "k": k,
+                "avg_relevance": avg_relevance
+            }
         }
     
     def hybrid_search_query(
@@ -328,53 +389,3 @@ Answer:"""
         }
 
 
-def main():
-    """Example usage"""
-    from embeddings import EmbeddingManager
-    import json
-    
-    # Load chunks and create documents
-    with open('data/chunks.json', 'r', encoding='utf-8') as f:
-        chunks = json.load(f)
-    
-    # Initialize embeddings and vector store
-    embedding_manager = EmbeddingManager(provider="google")
-    embedding_manager.load_vectorstore()
-    documents = embedding_manager.chunks_to_documents(chunks)
-    
-    # Initialize RAG retrieval (Groq is faster)
-    rag = RAGRetrieval(
-        vectorstore=embedding_manager.vectorstore,
-        llm_provider="groq"
-    )
-    
-    # Example 1: Single paper query
-    print("\n=== Single Paper Query ===")
-    result = rag.query_single_paper(
-        question="What are the main findings?",
-        paper_id="paper_001",
-        k=5
-    )
-    print(f"Answer: {result['answer']}")
-    
-    # Example 2: Multi-paper query
-    print("\n=== Multi-Paper Query ===")
-    result = rag.query_multi_paper(
-        question="What are the common methodologies used?",
-        k=10
-    )
-    print(f"Answer: {result['answer']}")
-    print(f"Papers cited: {list(result['papers_cited'].values())}")
-    
-    # Example 3: Hybrid search
-    print("\n=== Hybrid Search Query ===")
-    result = rag.hybrid_search_query(
-        question="What are the limitations?",
-        documents=documents,
-        k=5
-    )
-    print(f"Answer: {result['answer']}")
-
-
-if __name__ == "__main__":
-    main()

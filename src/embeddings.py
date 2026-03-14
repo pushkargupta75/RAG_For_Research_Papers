@@ -241,33 +241,3 @@ class EmbeddingManager:
             print(f"✓ Deleted collection: {collection_name}")
 
 
-def main():
-    """Example usage"""
-    import json
-    
-    # Load chunks
-    with open('data/chunks.json', 'r', encoding='utf-8') as f:
-        chunks = json.load(f)
-    
-    # Initialize embedding manager (using HuggingFace by default - free & local)
-    manager = EmbeddingManager(
-        provider="huggingface",
-        persist_directory="./chroma_db"
-    )
-    
-    # Create vector store
-    vectorstore = manager.create_vectorstore(chunks)
-    
-    # Example query
-    query = "What are the main findings of this research?"
-    results = manager.similarity_search(query, k=3)
-    
-    print(f"\nTop 3 results for: '{query}'")
-    for i, doc in enumerate(results, 1):
-        print(f"\n{i}. [{doc.metadata.get('section')}] "
-              f"{doc.metadata.get('paper_title', 'Unknown')[:50]}...")
-        print(f"   {doc.page_content[:200]}...")
-
-
-if __name__ == "__main__":
-    main()

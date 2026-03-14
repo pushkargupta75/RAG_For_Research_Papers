@@ -262,30 +262,3 @@ class TextChunker:
         }
 
 
-def main():
-    """Example usage"""
-    import json
-    
-    # Load processed papers
-    with open('data/processed_papers.json', 'r', encoding='utf-8') as f:
-        papers = json.load(f)
-    
-    # Initialize chunker
-    chunker = TextChunker(chunk_size=400, chunk_overlap=100)
-    
-    # Chunk papers
-    chunks = chunker.chunk_multiple_papers(papers)
-    
-    # Show statistics
-    stats = chunker.get_statistics(chunks)
-    print("\nChunking Statistics:")
-    for key, value in stats.items():
-        print(f"  {key}: {value}")
-    
-    # Save chunks
-    with open('data/chunks.json', 'w', encoding='utf-8') as f:
-        json.dump(chunks, f, indent=2, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    main()

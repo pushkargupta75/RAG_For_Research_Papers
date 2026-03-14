@@ -4,19 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
 
-**AI-powered scientific paper analysis with RAG - using Groq & HuggingFace**
+**AI-powered academic paper analysis with RAG (Groq + HuggingFace)**
 
-Analyze research papers with natural language queries. Built with Groq's Llama 3.3 (ultra-fast LLM) and HuggingFace embeddings (local, unlimited).
+Analyze research papers and scholarly articles with natural language queries. Built with Groq's Llama 3.3 (fast inference) and HuggingFace embeddings (local, unlimited).
 
 ## ✨ Features
 
 - 📄 **Smart PDF Processing** - Automatic parsing and intelligent chunking
 - 💬 **Q&A System** - Ask questions with source citations
-- 🔬 **Multi-Paper Synthesis** - Compare insights across documents
+- ✅ **Question Relevance Gate** - Detects off-topic questions before LLM generation
 - ⚠️ **Contradiction Detection** - Find conflicting claims
 - 🎯 **Gap Analysis** - Identify research opportunities
-- 🕸️ **Citation Networks** - Interactive paper relationships
-- 🎨 **Streamlit UI** - Clean web interface
+- 🧭 **Retrieval Insights** - Chunk count, relevance score, and source provenance
+- 🎨 **Futuristic Streamlit UI** - Neat, focused dashboard
 
 ## 🚀 Quick Start
 
@@ -30,6 +30,7 @@ pip install -r requirements.txt
 
 # Get free API key from https://console.groq.com
 # Copy .env.example to .env and add: GROQ_API_KEY=your_key
+# (API key is read from .env only and is not shown in the dashboard)
 
 # Run
 streamlit run src/app.py
@@ -40,7 +41,7 @@ Open `http://localhost:8501` and start analyzing papers!
 ## 📖 Usage
 
 ### Streamlit Dashboard
-Upload PDFs → Ask questions → Get answers with citations
+Upload PDFs → Ask a question → Relevance check → Answer with sources + retrieval diagnostics
 
 ### Python API
 ```python
@@ -66,7 +67,7 @@ result = rag.query_single_paper("What are the main findings?", "001")
 
 **Result:** Fast, free, and privacy-friendly (your papers never leave your machine!)
 
-## 📁 Structure
+## 📁 Current Structure
 
 ```
 sci_synth/
@@ -75,20 +76,20 @@ sci_synth/
 │   ├── chunking.py         # Text splitting
 │   ├── embeddings.py       # Vector embeddings
 │   ├── retrieval.py        # RAG + LLM
-│   ├── analysis.py         # Advanced features
+│   ├── analysis.py         # Contradictions + gap analysis
 │   └── app.py              # Streamlit UI
-├── notebooks/              # 5 tutorials
 ├── data/                   # Your PDFs
+├── .env.example            # API key template
 └── requirements.txt
 ```
 
-## 🆕 What's New (v2.0)
+## 🆕 What's New (current)
 
-- ✅ Upgraded to Llama 3.3 70B (faster + smarter)
-- ✅ Switched to HuggingFace embeddings (no API limits!)
-- ✅ Updated LangChain API (latest imports)
-- ✅ Added GitHub workflows & templates
-- ✅ Enhanced security & privacy
+- ✅ Academic-document validation during upload (accept scholarly docs, reject non-academic docs)
+- ✅ Hidden API-key handling via `.env` only
+- ✅ Relevance gate for user questions before generation
+- ✅ Retrieval observability (chunks, relevance, provenance)
+- ✅ Streamlined UI (removed synthesis/citation tabs and extra controls)
 
 ## 🛠️ Tech Stack
 
@@ -98,7 +99,8 @@ LangChain • Streamlit • Groq • HuggingFace • Chroma • PyMuPDF • Netw
 
 **Rate limits?** Groq free tier resets every minute  
 **Missing modules?** Run `pip install --upgrade -r requirements.txt`  
-**No .env file?** Copy `.env.example` to `.env`
+**No .env file?** Copy `.env.example` to `.env`  
+**No answers for a question?** The relevance gate may be filtering off-topic prompts—ask paper-grounded questions (methods/findings/limitations).
 
 
 ## 🙏 Acknowledgments
